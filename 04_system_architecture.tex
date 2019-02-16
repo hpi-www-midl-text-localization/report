@@ -12,7 +12,7 @@ This is especially useful when running the programs on computers accessed via a 
 A typical use-case for using the system is to (a) generate synthetic training data using the \textit{dataset-generator}, (b) installing the \textit{text-localization-environment} for later usage by the agent and (c) training and/or evaluating one or multiple agents using the \textit{text-localization-agent}. 
 In the following paragraphs, the three programs and their usage options are described more in-depth.
 
-\subsection{The dataset-generator program}
+\subsection{The dataset-generator program}\label{sec:dataset-generator}
 
 As briefly introduced before, the \textit{dataset-generator} is a program that can be used for generating synthetic training data for usage in machine learning projects related to the bounding box detection (localization) of text on images. 
 It does so by using the Python package Pillow\cite{PythonPackagePillow} to load one or multiple fonts, create images of a specific size and render one or multiple words of text onto those images.
@@ -71,4 +71,38 @@ During the course of the project, we also introduced two more means for increasi
 
 Although the \textit{text-localization-environment} program is theoretically independent from the agent using it (as proposed in the OpenAI specification), it usually is used together with such an agent.
 
-The program allowing the trainign and testing of such agents is described in the following section.
+The program allowing the training and testing of such agents is described in the following section.
+
+\subsection{The text-localization-agent program}
+
+The \textit{text-localization-agent} program uses the deep reinforcement learning framework ChainerRL\cite{ChainerRL} internally.
+In addition to offering a variety of state-of-the-art deep reinforcement learning algorithms and different Q-functions, ChainerRL also offers convenience functions for training an agent while evaluating it at a given interval.
+
+Thus, the \textit{text-localization-agent} program acts on a quite high level of abstraction:
+It offers a \textit{click}-based CLI which allows users to provide an amount of steps for which a training should be run as well as the locations of the \texttt{.txt} and \texttt{.npy} files described in section \ref{sec:dataset-generator}. 
+Furthermore, it allows users to specify the ID of the GPU to use (if any) and whether the intermediate training results should be logged to TensorBoard, as described in the following paragraph.
+
+\paragraph{TensorBoard logging integration}
+
+Although being mainly focused on being used together with TensorFlow, the TensorBoard visualization toolkit\cite{TensorBoard} also can be used for monitoring the training progress of other machine learning applications.
+
+Since ChainerRL doesn't offer a built-in way of logging in a format suitable for visualization in TensorBoard, we had to implement a corresponding logging ourselves.
+Thankfully, there exists a library called \textit{tensorboard-chainer}\cite{TensorBoardChainer} which offers a convenient way of logging variables like scalars and images to TensorBoard.
+The resulting TensorBoard logging is implemented using a so-called ChainerRL step hook\cite{ChainerRLStepHooks}.
+Figure \ref{fig:tensorboard-sample-output} shows a sample visualization created in TensorBoard.
+
+\begin{figure}[h!]
+    \centering
+    \includegraphics[width=0.8\textwidth]{figures/tensorboard-sample-output.png}
+    \caption{Sample visualization created using TensorBoard}
+    \label{fig:tensorboard-sample-output}
+\end{figure}
+
+\noindent We tried using the ChainerRL Visualizer\cite{ChainerRLVisualizer} as well, but it turned out to be less useful than our integration of TensorBoard.
+This was mostly based on the fact that the ChainerRL Visualizer can not yet create saliency maps for models containing a RNN, as well as on the fact that the ChainerRL Visualizer requires users to control the training itself via the UI, which was in our case less practical than being able to run the training programmatically from our \textit{text-localization-agent} program.
+
+While the visualizations in TensorBoard help to get a quick impression on how well a training run performs in comparison to others, they do not really give a formal evaluation of the agents' performances.
+Thus, we implemented scripts that allow evaluating a trained agent on a specified set of images, as described in the following paragraph.
+
+\paragraph{Evaluation and debug visualization scripts}
+
