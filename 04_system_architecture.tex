@@ -93,7 +93,7 @@ Figure \ref{fig:tensorboard-sample-output} shows a sample visualization created 
 
 \begin{figure}[h!]
     \centering
-    \includegraphics[width=0.8\textwidth]{figures/tensorboard-sample-output.png}
+    \includegraphics[width=0.55\textwidth]{figures/tensorboard-sample-output.png}
     \caption{Sample visualization created using TensorBoard}
     \label{fig:tensorboard-sample-output}
 \end{figure}
@@ -102,7 +102,9 @@ Figure \ref{fig:tensorboard-sample-output} shows a sample visualization created 
 This was mostly based on the fact that the ChainerRL Visualizer can not yet create saliency maps for models containing a RNN, as well as on the fact that the ChainerRL Visualizer requires users to control the training itself via the UI, which was in our case less practical than being able to run the training programmatically from our \textit{text-localization-agent} program.
 
 While the visualizations in TensorBoard help to get a quick impression on how well a training run performs in comparison to others, they do not really give a formal evaluation of the agents' performances.
-Thus, we implemented scripts that allow evaluating a trained agent on a specified set of images, as described in the following paragraph.
+Thus, we implemented a Python script that allow evaluating a trained agent on a specified set of images, as described in the following paragraph.
 
-\paragraph{Evaluation and debug visualization scripts}
+\paragraph{Evaluation script}
 
+In order to be able to precisely calculate the mean average precision (mAP) as well as precision and recall for specific IoU thresholds, we implemeted a small wrapper script around ChainerCV's VOC evaluation methods\cite{ChainerCVEvalDetectionVOC}.
+This allows users to provide a dataset in the format created by the \textit{dataset-generator} program and calculate the mAP as well as precision and recall values based on the metrics used in the PASCAL VOC challenge.
