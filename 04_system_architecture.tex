@@ -1,9 +1,9 @@
 \section{System architecture}
 
 The system consists mainly of three parts, of which one is used for generating test data and two are used for the actual reinforcement learning.
-On the one hand, there exits a Python-based program that can be used to generate synthetic training images with text on them.\footnote{The program's source code can be found on GitHub.\cite{GitHubDatasetGenerator}}. 
+Initially, we created a Python-based program that can be used to generate synthetic training images with text on them\footnote{The program's source code can be found on GitHub.\cite{GitHubDatasetGenerator}}. 
 This program is called the \textit{dataset-generator}.
-On the other hand, there exist two programs also based on Python which provide both the environment and the agent used for the reinforcement learning's training and testing.\footnote{The source code of those programs can be found on GitHub as well.\cite{GitHubTextLocalizationEnvironment}\cite{GitHubTextLocalizationAgent}}. 
+Subsequently, we wrote two programs - also in Python - which provide both the environment and the agent used for the reinforcement learning's training and testing\footnote{The source code of those programs can be found on GitHub as well.\cite{GitHubTextLocalizationEnvironment}\cite{GitHubTextLocalizationAgent}}. 
 Those programs are called \textit{text-localization-environment} and \textit{text-localization-agent} respectively. 
 
 Both the \textit{dataset-generator} and the \textit{text-localization-agent} program use the Python package \textit{click}\cite{PythonPackageClick} for offering command-line interfaces that allow users to change the programs' parameters without having to change their source code.
@@ -14,9 +14,9 @@ In the following paragraphs, the three programs and their usage options are desc
 
 \subsection{The dataset-generator program}\label{sec:dataset-generator}
 
-As briefly introduced before, the \textit{dataset-generator} is a program that can be used for generating synthetic training data for usage in machine learning projects related to the bounding box detection (localization) of text on images. 
+As briefly mentioned before, the \textit{dataset-generator} is a program that can be used for generating synthetic training data for usage in machine learning projects related to the bounding box detection (localization) of text on images. 
 It does so by using the Python package Pillow\cite{PythonPackagePillow} to load one or multiple fonts, create images of a specific size and render one or multiple words of text onto those images.
-The words themselves come from a public domain word list originally contained in the original BSD project project.\cite{BSDWordlist}
+The words themselves come from a public domain word list originally contained in the original BSD project.\cite{BSDWordlist}
 
 For the generation of image datasets, users can control the images' width, their height, the amount of images to generate, the location of a word list (in a format similar to the word list contained by default, as described above), a seed used for the random calculations within the program as well as whether the program should use a debug mode (in which it renders AABB outlines around the corresponding words).
 
@@ -51,23 +51,15 @@ The \textit{text-localization-environment} program is designed to conform to Ope
     \end{itemize}\cite{OpenAIGymReadme}
 \end{quote}
 In general, the environment is based on the algorithm described in the paper\cite{caicedo2015active} which we based our research on:
-The environment offers a total of 9 actions to the agent (and thus uses a \textit{discrete} action space).
-Those actions are exactly the same as the one used in the paper mentioned above, and are visualized in figure \ref{fig:environment-actions-from-base-paper}.
-
-\begin{figure}[h!]
-    \centering
-    \includegraphics[width=0.7\textwidth]{figures/environment-actions-from-base-paper.png}
-    \caption{The actions offered by the environment to the agent\cite{caicedo2015active}}
-    \label{fig:environment-actions-from-base-paper}
-\end{figure}
+the environment offers a total of 9 actions to the agent (and thus uses a \textit{discrete} action space).
+Those actions are exactly the same as the one used in the paper mentioned above, and are visualized in Figure \ref{fig:environment-actions-from-base-paper}.
 
 After being initialized with a set of images (indicated by a corresponding \texttt{.txt} file, as described above) and the ground truth bounding boxes (contained in a \texttt{.npy} file), the environment acts as a kind of state machine which can be controlled by the three main methods described above. 
 For calculating the observation in the \textit{reset} and \textit{step} methods, the environment uses a feature extractor – in our case, we used VGG16\cite{VGG16} in the beginning and replaced it with ResNet\cite{ResNet} later.
 In order to control whether this feature extractor runs on the GPU, the environment can be initialized with a corresponding parameter indicating the ID of the GPU to be used.
 
 For calculating the reward returned by the \textit{step} method, the environment calculates the best intersection over union (IoU) of the current bounding box and any of the ground truth bounding boxes. 
-Depending on whether this IoU changed positively or negatively in respect to the one calculated in the step before, the reward is either $+1$ or $-1$. 
-During the course of the project, we also introduced two more means for increasing the likelihood of the agent using the \textit{trigger} action: We (a) made the environment count the amount of consecutive steps taken that did not change the IoU in any way (and give a negative reward of $-1$ whenever this count exceeds 3 steps) and (b) introduced a duration penalty (with a default value of $0.03$) which is multiplied by the amount of steps taken since the last time the \textit{reset} method was called and subtracted from the reward.
+During the course of the project, we also introduced two more means for increasing the likelihood of the agent using the \textit{trigger} action: we (a) made the environment count the amount of consecutive steps taken that did not change the IoU in any way (and give a negative reward of $-1$ whenever this count exceeds 3 steps) and (b) introduced a duration penalty (with a default value of $0.03$) which is multiplied by the amount of steps taken since the last time the \textit{reset} method was called and subtracted from the reward. These two elements were introduced because agents in the early development stages ended up almost never using the \textit{trigger} action; our aim was thus to penalize the agent for waiting too long before coming up with a bounding box proposal\footnote{This matter is discussed further in Section \ref{sec:Results}.}.
 
 Although the \textit{text-localization-environment} program is theoretically independent from the agent using it (as proposed in the OpenAI specification), it usually is used together with such an agent.
 
@@ -81,6 +73,8 @@ In addition to offering a variety of state-of-the-art deep reinforcement learnin
 Thus, the \textit{text-localization-agent} program acts on a quite high level of abstraction:
 It offers a \textit{click}-based CLI which allows users to provide an amount of steps for which a training should be run as well as the locations of the \texttt{.txt} and \texttt{.npy} files described in section \ref{sec:dataset-generator}. 
 Furthermore, it allows users to specify the ID of the GPU to use (if any) and whether the intermediate training results should be logged to TensorBoard, as described in the following paragraph.
+
+Our implementation of the agent has remained rather static across development, but there are a couple of details which are important to keep in mind. As hinted in Section \ref{sec:theoretical background}, our agent at its core was made up of a Deep QNetwork; this essentially means that it was modeled by a Deep Neural Network which took as input a representation of the current state and would output the Q values for the different actions. For the optimizer we chose the widely used Adam optimizer which is well suited for our problem given the sparse structure of the data. Finally, the exploration-exploitation trade-off was balanced using a Linear Decay $\epsilon$-greedy strategy; we decided to go for this approach based on the base paper \cite{caicedo2015active} and also took the same interval for the linearly decaying $\epsilon$ values.
 
 \paragraph{TensorBoard logging integration}
 

@@ -1,11 +1,13 @@
 \section{Introduction}
 
+In the seminar "Machine Intelligence with Deep Learning" we as a team worked on the topic "Text Localization with Deep Reinforcement Learning". Our task was to become acquainted with the subject-matter and then implement our own solution using the technique described in \cite{caicedo2015active}. 
+The term text localization describes the task of automatically locating text in an image.
+Text localization and detection is often a crucial first step for extracting semantics in multimedia content since the text itself can contain useful information. Another use case might be transforming found text (e.g. translating it into different languages.
 
-% Graphic include example:
-%\begin{figure}[hbp]
-%\begin{center}
-%\includegraphics*[width=0.75\textwidth]{example.png}\\
-%\caption{A figure, Source: \cite{caicedo2015active}}
-%\label{fig:test}
-%\end{center}
-%\end{figure}
+As stated in \cite{DBLP:journals/corr/ZhouYWWZHL17} traditionally text localization algorithms use manually designed features.
+An example standard method is used in the library OpenCV \cite{OpenCVSceneTextDetection} where single characters are detected through classifying as such and afterwards those characters are grouped.
+More recently, deep learning based methods that learn features directly from the training data have started to appear. 
+
+The reinforcement element is based on the idea of an agent having control over the decision making. The agent has to learn its own logic for locating text in an image.
+In this paper we explore related work to our topic and use this as a source to consolidate the knowledge about said topics and get into the theoretical background.
+Then we will use that as a basis to develop our own deep reinforcement system and iterate using self generated train and test data sets. At the end the system is evaluated and used to solidify the learning's from that.

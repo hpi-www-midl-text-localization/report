@@ -1,1 +1,9 @@
-\section{Conclusion}
+\section{Conclusion and future work}
+Our text localization algorithm is able to detect simple words artificially generated on a uniformly colored background with a  precision of $92.74$ percent with an average IoU of $0.64$.
+This is a result which serves the purpose of showing that it is possible to achieve text detection with deep reinforcement learning.
+However, given that text in natural images is a lot more complex than the generated text used in this project, it is likely that precision on real-world datasets would be a lot lower.
+State of the art methods are able to achieve precision scores of over 80\% with an even higher mean IoU on real world data sets like MSRA-TD500 \cite{DBLP:journals/corr/ZhouYWWZHL17} which is far from what we would expect our approach to achieve. Therefore the approach described here using deep reinforcement learning is far from being viable in practice. 
+
+To change that, we propose improvements on multiple fronts. One such proposal is to further optimize the reward structure. This could for example mean increasing the target IoU which would give the agent more incentive to better fit the bounding box to the text. Another option could be to include other metrics, such as the "centeredness" of the text within the bounding box, into the reward calculation. 
+
+The agent architecture also might have room for improvements. During this project, the focus was mostly on the environment and the reward structure whereas the agent itself did not undergo a lot of changes. Experimenting with different layer numbers and learning algorithms could help improve precision as well. In particular, as Caicedo and Lazebnik \cite{caicedo2015active} already noted in their paper that inspired this project, it might be helpful to not use a feature extractor at all and instead learn directly from the image.
