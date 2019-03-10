@@ -1,7 +1,7 @@
 \section{System architecture}
 
 The system consists mainly of three parts, of which one is used for generating test data and two are used for the actual reinforcement learning.
-Initially, we created a Python-based program that can be used to generate synthetic training images with text on them\footnote{The program's source code can be found on GitHub.\cite{GitHubDatasetGenerator}}. 
+Initially, we created a Python-based program that can be used to generate synthetic training images with text on them\footnote{The program's source code can be found on GitHub.\cite{GitHubDatasetGenerator}}.
 This program is called the \textit{dataset-generator}.
 Subsequently, we wrote two programs - also in Python - which provide both the environment and the agent used for the reinforcement learning's training and testing\footnote{The source code of those programs can be found on GitHub as well.\cite{GitHubTextLocalizationEnvironment}\cite{GitHubTextLocalizationAgent}}. 
 Those programs are called \textit{text-localization-environment} and \textit{text-localization-agent} respectively. 
@@ -14,8 +14,10 @@ In the following paragraphs, the three programs and their usage options are desc
 
 \subsection{The dataset-generator program}\label{sec:dataset-generator}
 
-As briefly mentioned before, the \textit{dataset-generator} is a program that can be used for generating synthetic training data for usage in machine learning projects related to the bounding box detection (localization) of text on images. 
-It does so by using the Python package Pillow\cite{PythonPackagePillow} to load one or multiple fonts, create images of a specific size and render one or multiple words of text onto those images.
+As briefly mentioned before, the \textit{dataset-generator} is a program that can be used for generating synthetic training data for usage in machine learning projects related to the bounding box detection (localization) of text on images.
+
+With the generator it is possible to start our training process at a low level and increase the difficulty step by step. Therefore we can slowly improve our implementation to the point where it might be able to detect real world images. Secondly the \textit{dataset-generator} enables us to generate as many images for train or testing purposes with specific parameters (i.e. wordcount, word length, font, font size etc.) as we want without the need of anyone classifying data for us.
+The \textit{dataset-generator} uses the Python package Pillow\cite{PythonPackagePillow} to load one or multiple fonts, create images of a specific size and render one or multiple words of text onto those images.
 The words themselves come from a public domain word list originally contained in the original BSD project.\cite{BSDWordlist}
 
 For the generation of image datasets, users can control the images' width, their height, the amount of images to generate, the location of a word list (in a format similar to the word list contained by default, as described above), a seed used for the random calculations within the program as well as whether the program should use a debug mode (in which it renders AABB outlines around the corresponding words).
